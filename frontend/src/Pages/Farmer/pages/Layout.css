@@ -1,0 +1,32 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  height: auto;
+  width: 20vw;
+  background-color: #6f4646;
+}
+
+.main-content {
+  flex: 1;
+  padding: 50px;
+}
+.item-link {
+  text-decoration: none;
+  display: block;
+}
+.item {
+  padding-top: calc( 100vh / 8);
+  padding-bottom: calc(100vh / 8);
+  color: white;
+  font-weight: bolder;
+  font-size: large;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.item:hover {
+  color: greenyellow;
+}

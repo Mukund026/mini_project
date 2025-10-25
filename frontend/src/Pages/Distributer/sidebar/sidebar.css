@@ -1,0 +1,49 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.sidebarContainer {
+  border-radius: 5px;
+  display: none;
+  width: 30vw;
+  height: 100vh;
+  background-color: rgb(112, 69, 69);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebarList {
+  height: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.item1 {
+  font-weight: bolder;
+  font-size: large;
+}
+
+.item-link1 {
+  list-style-type: none;
+  padding-top: calc(100vh / 13);
+  padding-bottom: calc(100vh / 13);
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+  display: block;
+}
+.item-link1:hover {
+  color: greenyellow;
+}
+ul {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
