@@ -10,6 +10,7 @@ const Profile = () => {
   const [name, setName] = useState("");
   const [location, setlocation] = useState("");
   const [phone, setPhone] = useState("");
+  const [farmerId, setFarmerId] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showMenu, setShowMenu] = useState(false);
@@ -18,12 +19,20 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    // Check if user is logged in and is a farmer
+    if (!user || !user.id || user.role !== 'farmer') {
+      window.location.href = '/login';
+      return;
+    }
+
     const savedProfile =
       JSON.parse(localStorage.getItem("farmerProfile")) || {};
     setName(savedProfile.name || "");
     setlocation(savedProfile.location || "");
     setPhone(savedProfile.phone || "");
     setPreview(savedProfile.preview || null);
+    setFarmerId(localStorage.getItem("userId") || "");
   }, []);
 
   const saveProfile = () => {
@@ -152,6 +161,15 @@ const Profile = () => {
               placeholder="Enter your phone number"
             />
           </div>
+          <div className="farmerId">
+            <label htmlFor="farmerId">Farmer ID</label>
+            <input
+              type="text"
+              value={farmerId}
+              readOnly
+              placeholder="Farmer ID"
+            />
+          </div>
           <div className="changepassword">
             <label htmlFor="password">Change Password</label>
             <div className="btn">
@@ -169,10 +187,6 @@ const Profile = () => {
               />
               <button onClick={changePassword}>Change Password</button>
             </div>
-          </div>
-          <div className="payment">
-            <label htmlFor="payment">Payment</label>
-            <button>Click here to Pay</button>
           </div>
           <button
             onClick={saveProfile}

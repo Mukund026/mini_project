@@ -1,0 +1,72 @@
+.dashboard-container {
+  padding: 20px;
+}
+
+.add-product-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.add-product-btn:hover {
+  background-color: #45a049;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.summary-table th,
+.summary-table td {
+  border: 2px solid black;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.summary-table th {
+  background-color: #f0f0f0;
+  color: green;
+}
+
+.subtables-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.subtables-container h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.subtable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.subtable th,
+.subtable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.subtable th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+.subtable tr:nth-child(even) {
+  background-color: #f2f2f2;
+}

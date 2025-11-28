@@ -4,6 +4,7 @@
 }
 
 .sidebar {
+  color: white;
   height: auto;
   width: 20vw;
   background-color: #6f4646;
@@ -14,19 +15,13 @@
   padding: 50px;
 }
 .item-link {
+  font-size: x-large;
+  color: white;
+  padding-top: calc(100vh / 12);
+  padding-bottom: calc(100vh / 12);
   text-decoration: none;
   display: block;
 }
-.item {
-  padding-top: calc( 100vh / 8);
-  padding-bottom: calc(100vh / 8);
-  color: white;
-  font-weight: bolder;
-  font-size: large;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.item:hover {
+.item-link:hover {
   color: greenyellow;
 }

@@ -1,18 +1,47 @@
-// Overview.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "./Layout";
-import SimpleTable from "./tables/table";
-import { useNavigate } from "react-router-dom";
+import DashboardTable from "./dashboardTable/DashboardTable";
+import AddProduceForm from "./addProduce";
 
 const Overview = () => {
-  const Navigate = useNavigate();
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  const handleProductAdded = () => {
+    setRefreshTrigger((prev) => prev + 1);
+    setShowAddForm(false);
+  };
+
+  const handleCloseAddForm = () => {
+    setShowAddForm(false);
+  };
+
+  useEffect(() => {
+    const handleStorage = () => {
+      if (localStorage.getItem("refreshOverview") === "true") {
+        setRefreshTrigger((prev) => prev + 1);
+        localStorage.removeItem("refreshOverview");
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   return (
-    <Layout>
-      <button id="addProduce" style={{ marginBottom: '5rem', height: '50px', width: '500', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.53)' }} onClick={() => {
-        Navigate("/addProduce")
-      }}>Add new Produce</button>
-      <SimpleTable></SimpleTable>
-    </Layout>
+    <div>
+      <Layout>
+        <DashboardTable
+          refreshTrigger={refreshTrigger}
+          onShowAddForm={() => setShowAddForm(true)}
+        />
+        {showAddForm && (
+          <AddProduceForm
+            onClose={handleCloseAddForm}
+            onSuccess={handleProductAdded}
+          />
+        )}
+      </Layout>
+    </div>
   );
 };
 

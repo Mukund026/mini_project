@@ -1,9 +1,7 @@
 import { toast } from "react-toastify";
 import "./addProduce.css";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
-import Layout from "./Layout";
-import { useNavigate } from "react-router-dom";
 
 const produceOptions = [
   { value: "Rice", label: "Rice" },
@@ -85,34 +83,119 @@ const categorySelect = [
   { value: "Others", label: "Others" },
 ];
 
-const quantitySelect = [
+const liquidProduces = ["Milk", "Honey"];
+
+const allQuantitySelect = [
   { value: "Kg", label: "Kg" },
   { value: "Quintal", label: "Quintal" },
   { value: "Ton", label: "Ton" },
   { value: "Liters", label: "Liters" },
 ];
 
-export default function AddProduceForm() {
+const nonLiquidQuantitySelect = [
+  { value: "Kg", label: "Kg" },
+  { value: "Quintal", label: "Quintal" },
+  { value: "Ton", label: "Ton" },
+];
+
+const produceToCategory = {
+  Rice: "Cereals",
+  Wheat: "Cereals",
+  Maize: "Cereals",
+  Barley: "Cereals",
+  Jowar: "Cereals",
+  Bajra: "Cereals",
+  Ragi: "Cereals",
+  Chickpeas: "Pulses",
+  "Pigeon Pea": "Pulses",
+  "Green Gram": "Pulses",
+  "Black Gram": "Pulses",
+  Lentils: "Pulses",
+  Peas: "Pulses",
+  Turmeric: "Spices",
+  Cardamom: "Spices",
+  "Black Pepper": "Spices",
+  Cumin: "Spices",
+  Coriander: "Spices",
+  Fenugreek: "Spices",
+  "Mustard Seeds": "Spices",
+  Fennel: "Spices",
+  Clove: "Spices",
+  Nutmeg: "Spices",
+  Groundnut: "Oilseeds",
+  Soybean: "Oilseeds",
+  Sunflower: "Oilseeds",
+  Sesame: "Oilseeds",
+  Castor: "Oilseeds",
+  Linseed: "Oilseeds",
+  Coconut: "Cash Crops",
+  Sugarcane: "Cash Crops",
+  Cotton: "Cash Crops",
+  Jute: "Cash Crops",
+  Tobacco: "Cash Crops",
+  Tea: "Cash Crops",
+  Coffee: "Cash Crops",
+  Rubber: "Cash Crops",
+  Mango: "Fruits",
+  Banana: "Fruits",
+  Apple: "Fruits",
+  Grapes: "Fruits",
+  Guava: "Fruits",
+  Papaya: "Fruits",
+  Pomegranate: "Fruits",
+  Orange: "Fruits",
+  Litchi: "Fruits",
+  Pineapple: "Fruits",
+  Watermelon: "Fruits",
+  Sapota: "Fruits",
+  Potato: "Vegetables",
+  Onion: "Vegetables",
+  Tomato: "Vegetables",
+  Brinjal: "Vegetables",
+  Cabbage: "Vegetables",
+  Cauliflower: "Vegetables",
+  Carrot: "Vegetables",
+  Okra: "Vegetables",
+  Spinach: "Vegetables",
+  "Bitter Gourd": "Vegetables",
+  "Bottle Gourd": "Vegetables",
+  Pumpkin: "Vegetables",
+  Milk: "Others",
+  Eggs: "Others",
+  Fish: "Others",
+  Honey: "Others",
+  Flowers: "Others",
+};
+
+export default function AddProduceForm({ onClose, onSuccess }) {
   const [selectedProduce, setSelectedProduce] = useState(null);
   const [category, setCategory] = useState(null);
   const [quantityValue, setQuantityValue] = useState("");
   const [quantity, setQuantity] = useState(null);
+  const [quantitySelect, setQuantitySelect] = useState(allQuantitySelect);
   const [price, setPrice] = useState("");
   const [location, setLocation] = useState("");
   const [availability, setAvailability] = useState("");
   const [images, setImages] = useState([]);
   const [selectedFilesText, setSelectedFilesText] = useState("Choose Files");
   const [description, setDescription] = useState("");
+  // Removed showForm state as the form should always render when component is mounted
 
   const handleSubmit = (e) => {
     e.preventDefault();
   };
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    // Check if user is logged in and is a farmer
+    if (!user || !user.id || user.role !== "farmer") {
+      window.location.href = "/login";
+      return;
+    }
+  }, []);
 
   return (
-    <div className="container21">
-      <Layout />
-      <div className="container2">
+    <div>
       <form onSubmit={handleSubmit}>
         <div className="Input">
           <label htmlFor="produce" className="item">
@@ -121,7 +204,28 @@ export default function AddProduceForm() {
           <Select
             id="produce"
             value={selectedProduce}
-            onChange={setSelectedProduce}
+            onChange={(selectedOption) => {
+              setSelectedProduce(selectedOption);
+              if (selectedOption) {
+                const autoCategory = produceToCategory[selectedOption.value];
+                const categoryOption = categorySelect.find(
+                  (cat) => cat.value === autoCategory
+                );
+                setCategory(categoryOption || null);
+                // Update quantitySelect based on produce type
+                if (liquidProduces.includes(selectedOption.value)) {
+                  setQuantitySelect([{ value: "Liters", label: "Liters" }]);
+                } else {
+                  setQuantitySelect(nonLiquidQuantitySelect);
+                }
+                // Reset quantity selection
+                setQuantity(null);
+              } else {
+                setCategory(null);
+                setQuantitySelect(allQuantitySelect);
+                setQuantity(null);
+              }
+            }}
             options={produceOptions}
             placeholder="Choose One"
             styles={{
@@ -193,9 +297,9 @@ export default function AddProduceForm() {
           <Select
             id="category"
             value={category}
-            onChange={setCategory}
             options={categorySelect}
-            placeholder="Choose One"
+            placeholder="Auto-selected based on produce"
+            isDisabled={true}
             styles={{
               option: (provided, state) => ({
                 ...provided,
@@ -427,7 +531,7 @@ export default function AddProduceForm() {
 
         <button
           type="submit"
-          onClick={() => {
+          onClick={async () => {
             if (
               !selectedProduce ||
               !category ||
@@ -441,35 +545,59 @@ export default function AddProduceForm() {
             ) {
               toast.warning("Fill all the details Correctly");
             } else {
-              // Save produce data to localStorage
-              const produceData = {
-                name: selectedProduce.label,
-                category: category.label,
-                quantity: `${quantityValue} ${quantity.label}`,
-                price: `${price} Rs`,
-                location,
-                availability,
-                images: images.map(img => URL.createObjectURL(img)),
-                description,
-                status: 'Active'
-              };
+              try {
+                const user = JSON.parse(localStorage.getItem("user"));
+                if (!user || !user.id) {
+                  toast.error("User not logged in");
+                  return;
+                }
 
-              const existingListings = JSON.parse(localStorage.getItem('farmerListings') || '[]');
-              existingListings.push(produceData);
-              localStorage.setItem('farmerListings', JSON.stringify(existingListings));
+                // Create FormData for multipart/form-data upload
+                const formData = new FormData();
+                formData.append("name", selectedProduce.label);
+                formData.append("category", category.label);
+                formData.append("quantity", parseFloat(quantityValue));
+                formData.append("price", parseFloat(price));
+                formData.append("description", description);
+                formData.append("listedBy", user.id);
+                formData.append("role", "farmer");
 
-              // Increment the count in localStorage
-              const currentCount = parseInt(localStorage.getItem('totalListedProducts') || '0');
-              localStorage.setItem('totalListedProducts', (currentCount + 1).toString());
-              toast.success("Produce Added Successfully");
-              navigate("/Overview");
+                // Append images as files
+                images.forEach((file, index) => {
+                  formData.append("images", file);
+                });
+
+                const token = localStorage.getItem("token");
+                const response = await fetch(
+                  "http://localhost:5000/api/products/add",
+                  {
+                    method: "POST",
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                    body: formData, // Send FormData instead of JSON
+                  }
+                );
+
+                if (!response.ok) {
+                  throw new Error("Failed to add product");
+                }
+
+                toast.success("Produce Added Successfully");
+                // Close the form and refresh stats
+                onClose();
+                if (onSuccess) onSuccess();
+                // Trigger notification update
+              } catch (error) {
+                console.error("Error adding product:", error);
+                toast.error("Failed to add product");
+              }
             }
           }}
         >
           Add Produce
         </button>
       </form>
-      </div>
     </div>
   );
 }

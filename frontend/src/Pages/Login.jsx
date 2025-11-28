@@ -19,7 +19,7 @@ const Login = () => {
     { value: "farmer", label: "Farmer" },
     { value: "distributer", label: "Distributer" },
     { value: "retailer", label: "Retailer" },
-    { value: "consumere", label: "Consumere" },
+    { value: "consumer", label: "Consumer" },
   ];
 
   const handleChange = (e) => {
@@ -35,6 +35,7 @@ const Login = () => {
     }
 
     try {
+      //Api call
       const res = await axios.post("http://localhost:5000/api/auth/login", {
         email,
         password,
@@ -45,7 +46,13 @@ const Login = () => {
         closeButton: false,
       });
 
+      //store the returned token
+
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("userId", res.data.user.id);
+      localStorage.setItem("userRole", res.data.user.role);
+      localStorage.setItem("loginMessage", res.data.message);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
       switch (userType.value) {
         case "farmer":
@@ -57,7 +64,7 @@ const Login = () => {
         case "retailer":
           navigate("/retailer");
           break;
-        case "consumere":
+        case "consumer":
           navigate("/consumere");
           break;
         default:
@@ -72,7 +79,7 @@ const Login = () => {
 
   return (
     <div className="login-wrapper">
-      <div className="container">
+      {/* <div className="container"> */}
         <div className="container1">
           <form onSubmit={handleSubmit}>
             <h1>Login</h1>
@@ -176,7 +183,7 @@ const Login = () => {
             </div>
           </form>
         </div>
-      </div>
+      {/* </div> */}
     </div>
   );
 };

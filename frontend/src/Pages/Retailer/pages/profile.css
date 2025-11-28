@@ -1,0 +1,125 @@
+.profileContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+#logout {
+  align-self: flex-end;
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+#logout:hover {
+  background-color: #d32f2f;
+}
+
+.profileImageContainer {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #ddd;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.profileImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  min-width: 100px;
+}
+
+.menu div {
+  padding: 10px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.menu div:hover {
+  background-color: #f0f0f0;
+}
+
+.name,
+.location,
+.phone,
+.changepassword,
+.payment {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.btn {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn button {
+  padding: 10px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.btn button:hover {
+  background-color: #1976d2;
+}
+
+.payment button {
+  width: 100%;
+  padding: 10px;
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.payment button:hover {
+  background-color: #f57c00;
+}

@@ -18,7 +18,7 @@ const Signup = () => {
 
   const userOptions = [
     { value: "farmer", label: "Farmer" },
-    { value: "distributor", label: "Distributor" },
+    { value: "distributer", label: "Distributor" },
     { value: "retailer", label: "Retailer" },
     { value: "consumer", label: "Consumer" },
   ];
@@ -43,7 +43,7 @@ const Signup = () => {
     }
 
     try {
-      const res = await axios.post("/api/auth/signup", {
+      const res = await axios.post("http://localhost:5000/api/auth/signup", {
         name: username,
         email,
         password,

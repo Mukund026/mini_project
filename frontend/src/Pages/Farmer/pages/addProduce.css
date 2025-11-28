@@ -182,9 +182,9 @@ form select:focus {
 
 .Input.quantity input {
   flex: 1;
-  margin: 0px 0px 0px 90px;
-  width: 200px;
-  padding-right: 0;
+  margin: 0px -88px 0px 0px;
+  width: 400px;
+  padding-right: 100px;
   box-sizing: border-box;
   border-radius: 8px;
   border: 2px solid #6b8e23;
@@ -197,19 +197,17 @@ form select:focus {
   position: absolute;
   right: 0px;
   top: 0px;
-  width: 100px;
-  height: 100%;
+  width: 80px;
+  height: 80%;
   border-radius: 8px;
-  border: 2px solid #6b8e23;
-  border-left: none;
-  background: linear-gradient(145deg, #a8df8e 100%);
+  /* border: 2px solid #6b8e23; */
   color: white;
   font-weight: bold;
   z-index: 10;
 }
 
 .Input.quantity select:hover {
-  background: linear-gradient(145deg, #a86432 0%, #964e24 100%);
+  background: linear-gradient(145deg, #11ee71 0%, #d00e0e 100%);
 }
 
 .Input.quantity select:focus {

@@ -1,0 +1,35 @@
+.listings-container {
+  padding: 20px;
+}
+
+.listings-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.listings-table th,
+.listings-table td {
+  border: 2px solid black;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.listings-table th {
+  background-color: #f0f0f0;
+  color: green;
+}
+
+.listings-table input,
+.listings-table select {
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.listings-table button {
+  margin: 2px;
+  padding: 5px 10px;
+  cursor: pointer;
+}

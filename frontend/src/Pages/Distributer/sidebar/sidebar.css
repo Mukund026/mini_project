@@ -7,7 +7,7 @@ html, body {
 .sidebarContainer {
   border-radius: 5px;
   display: none;
-  width: 30vw;
+  width: 20vw;
   height: 100vh;
   background-color: rgb(112, 69, 69);
   display: flex;
@@ -32,8 +32,8 @@ html, body {
 
 .item-link1 {
   list-style-type: none;
-  padding-top: calc(100vh / 13);
-  padding-bottom: calc(100vh / 13);
+  padding-top: calc(100vh / 16);
+  padding-bottom: calc(100vh / 16);
   text-decoration: none;
   color: rgb(255, 255, 255);
   display: block;

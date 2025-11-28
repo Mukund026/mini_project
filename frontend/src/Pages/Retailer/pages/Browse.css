@@ -1,0 +1,16 @@
+.browseContainer {
+  margin-bottom: 20px;
+  align-items: center;
+  flex-direction: row;
+}
+
+.searchInput {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 12px;
+  width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #f0f0f0;
+}

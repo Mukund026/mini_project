@@ -1,6 +1,12 @@
-# TODO: Make orderTable Render Dynamically
+# TODO List for Fixing Product Visibility
 
-- [x] Add React hooks (useState, useEffect) to orderTable.jsx for fetching orders from localStorage ('farmerOrders')
-- [x] Update tbody to conditionally render rows: map over orders data if available, else show static "-" rows
-- [x] Ensure fields match: buyerName, produce, quantity, amount, status, contact
-- [ ] Test the component by running the frontend and checking Orders page
+## Completed Tasks
+
+- [x] Analyzed the current product visibility logic in Browse.jsx files for Retailer and Distributor.
+- [x] Updated frontend/src/Pages/Distributer/pages/Browse.jsx to filter products where role === "farmer" only, so distributors see only farmer products.
+- [x] Verified frontend/src/Pages/Retailer/pages/Browse.jsx already filters out retailer products (role !== "retailer"), allowing retailers to see farmer and distributer products.
+
+## Pending Tasks
+
+- [ ] Test the application to ensure retailers see farmer and distributer products, and distributors see only farmer products.
+- [ ] If testing reveals issues, fix any bugs or adjust filters accordingly.

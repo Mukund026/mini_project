@@ -1,0 +1,22 @@
+.dashboard-container {
+  padding: 20px;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.summary-table th,
+.summary-table td {
+  border: 2px solid black;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.summary-table th {
+  background-color: #f0f0f0;
+  color: green;
+}
