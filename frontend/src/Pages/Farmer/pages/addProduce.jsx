@@ -2,6 +2,8 @@ import { toast } from "react-toastify";
 import "./addProduce.css";
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
+import { getContract, connectWallet } from "../../../blockchain/wallet";
+import { ethers } from "ethers";
 
 const produceOptions = [
   { value: "Rice", label: "Rice" },
@@ -179,6 +181,7 @@ export default function AddProduceForm({ onClose, onSuccess }) {
   const [images, setImages] = useState([]);
   const [selectedFilesText, setSelectedFilesText] = useState("Choose Files");
   const [description, setDescription] = useState("");
+  const [walletAddress, setWalletAddress] = useState("");
   // Removed showForm state as the form should always render when component is mounted
 
   const handleSubmit = (e) => {
@@ -193,6 +196,26 @@ export default function AddProduceForm({ onClose, onSuccess }) {
       return;
     }
   }, []);
+
+useEffect(() => {
+  const fetchWalletAddress = async () => {
+    try {
+      const userType = localStorage.getItem("userType");
+      const walletAddress = localStorage.getItem("walletAddress");
+
+      const signer = await connectWallet(userType, walletAddress);
+
+      const address = await signer.getAddress();
+      setWalletAddress(address);
+
+      console.log("Connected wallet:", address);
+    } catch (error) {
+      console.error("Error connecting wallet:", error);
+    }
+  };
+
+  fetchWalletAddress();
+}, []);
 
   return (
     <div>
@@ -561,6 +584,7 @@ export default function AddProduceForm({ onClose, onSuccess }) {
                 formData.append("description", description);
                 formData.append("listedBy", user.id);
                 formData.append("role", "farmer");
+                formData.append("walletAddress", walletAddress);
 
                 // Append images as files
                 images.forEach((file, index) => {
@@ -568,6 +592,7 @@ export default function AddProduceForm({ onClose, onSuccess }) {
                 });
 
                 const token = localStorage.getItem("token");
+                console.log("Wallet being sent:", walletAddress);
                 const response = await fetch(
                   "http://localhost:5000/api/products/add",
                   {
@@ -581,6 +606,31 @@ export default function AddProduceForm({ onClose, onSuccess }) {
 
                 if (!response.ok) {
                   throw new Error("Failed to add product");
+                }
+
+                const data = await response.json();
+
+                // Record product on blockchain
+                try {
+                  const contract = await getContract();
+                  const productId = ethers.id(
+                    data.product._id + Date.now().toString()
+                  );
+                  const tx = await contract.createProduct(
+                    productId,
+                    selectedProduce.label,
+                    parseInt(quantityValue),
+                    parseFloat(price),
+                    location,
+                    `Product added by farmer: ${user.username}`
+                  );
+                  await tx.wait();
+                  toast.success("Produce added successfully on blockchain!");
+                } catch (blockchainError) {
+                  console.error("Blockchain error:", blockchainError);
+                  toast.warning(
+                    "Produce added to database, but blockchain recording failed"
+                  );
                 }
 
                 toast.success("Produce Added Successfully");

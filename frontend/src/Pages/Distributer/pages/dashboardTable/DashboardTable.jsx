@@ -82,7 +82,7 @@ const DashboardTable = () => {
 
         // Fetch products listed by this distributer
         const productsResponse = await fetch(
-          `http://localhost:5000/api/products/user/${user.id}`,
+          `http://localhost:5000/api/products/byuser/${user.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

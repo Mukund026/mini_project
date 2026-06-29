@@ -1,13 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { ethers } from "ethers";
+import io from "socket.io-client";
 
-const ListingsTable = () => {
+const ListingsTable = ({
+  listings: propListings,
+  userType,
+  sortBy,
+  onSortChange,
+  isBrowse,
+}) => {
   const [listings, setListings] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editedPrice, setEditedPrice] = useState("");
   const [editedQuantity, setEditedQuantity] = useState("");
 
   useEffect(() => {
+    if (isBrowse && propListings) { 
+      // Use props for browse mode
+      setListings(propListings);
+      return;
+    }
+
     const fetchListings = async () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
@@ -36,7 +50,7 @@ const ListingsTable = () => {
     };
 
     fetchListings();
-  }, []);
+  }, [isBrowse, propListings]);
 
   const handleEdit = (index) => {
     setEditingIndex(index);
@@ -62,6 +76,78 @@ const ListingsTable = () => {
     setEditingIndex(null);
     setEditedPrice("");
     setEditedQuantity("");
+  };
+
+  const handleAddToCart = (listing) => {
+    const cart = JSON.parse(localStorage.getItem("distributerCart") || "[]");
+    const newItem = {
+      productId: listing._id,
+      productName: listing.name,
+      category: listing.category,
+      quantity: 1,
+      price: listing.price,
+      image: listing.images ? listing.images[0] : null,
+    };
+    cart.push(newItem);
+    localStorage.setItem("distributerCart", JSON.stringify(cart));
+    toast.success("Added to cart!");
+  };
+
+  const handlePlaceOrder = async (listing) => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user || !user.id) {
+        toast.error("Please log in to place an order");
+        return;
+      }
+
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:5000/api/orders/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          productId: listing._id,
+          orderedBy: user.id,
+          orderedByRole: "distributer",
+          quantity: 1, // Default quantity for direct order
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to place order");
+      }
+
+      console.log("Order created:", data);
+
+      // Record order on blockchain
+      try {
+        const contract = await getContract();
+        const orderId = ethers.id(data._id + Date.now().toString());
+        const tx = await contract.addTrace(
+          listing._id,
+          1, // quantity
+          parseFloat(listing.price),
+          "Ordered", // quality/status
+          `Order placed by distributer: ${user.username}` // metaUri
+        );
+        await tx.wait();
+        toast.success("Order placed successfully on blockchain!");
+      } catch (blockchainError) {
+        console.error("Blockchain error:", blockchainError);
+        toast.warning(
+          "Order placed in database, but blockchain recording failed"
+        );
+      }
+
+      toast.success("Order placed successfully!");
+    } catch (error) {
+      console.error("Error placing order:", error);
+      toast.error(error.message || "Failed to place order");
+    }
   };
 
   return (
@@ -118,26 +204,54 @@ const ListingsTable = () => {
           >
             Price
           </th>
-          <th
-            style={{
-              border: "2px solid black",
-              padding: "10px",
-              fontWeight: "bolder",
-              color: "green",
-            }}
-          >
-            Status
-          </th>
-          <th
-            style={{
-              border: "2px solid black",
-              padding: "10px",
-              fontWeight: "bolder",
-              color: "green",
-            }}
-          >
-            Action
-          </th>
+          {!isBrowse && (
+            <th
+              style={{
+                border: "2px solid black",
+                padding: "10px",
+                fontWeight: "bolder",
+                color: "green",
+              }}
+            >
+              Status
+            </th>
+          )}
+          {!isBrowse && (
+            <th
+              style={{
+                border: "2px solid black",
+                padding: "10px",
+                fontWeight: "bolder",
+                color: "green",
+              }}
+            >
+              Action
+            </th>
+          )}
+          {isBrowse && (
+            <>
+              <th
+                style={{
+                  border: "2px solid black",
+                  padding: "10px",
+                  fontWeight: "bolder",
+                  color: "green",
+                }}
+              >
+                Add to Cart
+              </th>
+              <th
+                style={{
+                  border: "2px solid black",
+                  padding: "10px",
+                  fontWeight: "bolder",
+                  color: "green",
+                }}
+              >
+                Place Order
+              </th>
+            </>
+          )}
         </tr>
       </thead>
       <tbody>
@@ -229,26 +343,58 @@ const ListingsTable = () => {
                   listing.price || "-"
                 )}
               </td>
-              <td
-                style={{
-                  border: "2px solid black",
-                  padding: "10px",
-                  fontWeight: "bolder",
-                }}
-              >
-                {listing.status || "-"}
-              </td>
-              <td
-                style={{
-                  border: "2px solid black",
-                  padding: "10px",
-                  fontWeight: "bolder",
-                }}
-              >
-                {editingIndex === index ? (
-                  <>
+              {!isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  {listing.status || "-"}
+                </td>
+              )}
+              {!isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  {editingIndex === index ? (
+                    <>
+                      <button
+                        onClick={() => handleSave(index)}
+                        style={{
+                          padding: "5px 10px",
+                          backgroundColor: "#4CAF50",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          marginRight: "5px",
+                        }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={handleCancel}
+                        style={{
+                          padding: "5px 10px",
+                          backgroundColor: "#f44336",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
                     <button
-                      onClick={() => handleSave(index)}
+                      onClick={() => handleEdit(index)}
                       style={{
                         padding: "5px 10px",
                         backgroundColor: "#4CAF50",
@@ -256,41 +402,59 @@ const ListingsTable = () => {
                         border: "none",
                         borderRadius: "4px",
                         cursor: "pointer",
-                        marginRight: "5px",
                       }}
                     >
-                      Save
+                      Edit
                     </button>
+                  )}
+                </td>
+              )}
+              {isBrowse && (
+                <>
+                  <td
+                    style={{
+                      border: "2px solid black",
+                      padding: "10px",
+                      fontWeight: "bolder",
+                    }}
+                  >
                     <button
-                      onClick={handleCancel}
+                      onClick={() => handleAddToCart(listing)}
                       style={{
                         padding: "5px 10px",
-                        backgroundColor: "#f44336",
+                        backgroundColor: "#2196F3",
                         color: "white",
                         border: "none",
                         borderRadius: "4px",
                         cursor: "pointer",
                       }}
                     >
-                      Cancel
+                      Add to Cart
                     </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => handleEdit(index)}
+                  </td>
+                  <td
                     style={{
-                      padding: "5px 10px",
-                      backgroundColor: "#4CAF50",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
+                      border: "2px solid black",
+                      padding: "10px",
+                      fontWeight: "bolder",
                     }}
                   >
-                    Edit
-                  </button>
-                )}
-              </td>
+                    <button
+                      onClick={() => handlePlaceOrder(listing)}
+                      style={{
+                        padding: "5px 10px",
+                        backgroundColor: "#FF9800",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Place Order
+                    </button>
+                  </td>
+                </>
+              )}
             </tr>
           ))
         ) : (
@@ -341,24 +505,41 @@ const ListingsTable = () => {
               >
                 -
               </td>
-              <td
-                style={{
-                  border: "2px solid black",
-                  padding: "10px",
-                  fontWeight: "bolder",
-                }}
-              >
-                -
-              </td>
-              <td
-                style={{
-                  border: "2px solid black",
-                  padding: "10px",
-                  fontWeight: "bolder",
-                }}
-              >
-                -
-              </td>
+              {!isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
+              {!isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
+              {isBrowse && (
+                <>
+                  <td
+                    style={{
+                      border: "2px solid black",
+                      padding: "10px",
+                      fontWeight: "bolder",
+                    }}
+                  >
+                    -
+                  </td>
+                </>
+              )}
             </tr>
             <tr>
               <td
@@ -406,24 +587,39 @@ const ListingsTable = () => {
               >
                 -
               </td>
-              <td
-                style={{
-                  border: "2px solid black",
-                  padding: "10px",
-                  fontWeight: "bolder",
-                }}
-              >
-                -
-              </td>
-              <td
-                style={{
-                  border: "2px solid black",
-                  padding: "10px",
-                  fontWeight: "bolder",
-                }}
-              >
-                -
-              </td>
+              {!isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
+              {!isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
+              {isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
             </tr>
             <tr>
               <td
@@ -471,24 +667,39 @@ const ListingsTable = () => {
               >
                 -
               </td>
-              <td
-                style={{
-                  border: "2px solid black",
-                  padding: "10px",
-                  fontWeight: "bolder",
-                }}
-              >
-                -
-              </td>
-              <td
-                style={{
-                  border: "2px solid black",
-                  padding: "10px",
-                  fontWeight: "bolder",
-                }}
-              >
-                -
-              </td>
+              {!isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
+              {!isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
+              {isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
             </tr>
             <tr>
               <td
@@ -536,24 +747,39 @@ const ListingsTable = () => {
               >
                 -
               </td>
-              <td
-                style={{
-                  border: "2px solid black",
-                  padding: "10px",
-                  fontWeight: "bolder",
-                }}
-              >
-                -
-              </td>
-              <td
-                style={{
-                  border: "2px solid black",
-                  padding: "10px",
-                  fontWeight: "bolder",
-                }}
-              >
-                -
-              </td>
+              {!isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
+              {!isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
+              {isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
             </tr>
             <tr>
               <td
@@ -601,24 +827,39 @@ const ListingsTable = () => {
               >
                 -
               </td>
-              <td
-                style={{
-                  border: "2px solid black",
-                  padding: "10px",
-                  fontWeight: "bolder",
-                }}
-              >
-                -
-              </td>
-              <td
-                style={{
-                  border: "2px solid black",
-                  padding: "10px",
-                  fontWeight: "bolder",
-                }}
-              >
-                -
-              </td>
+              {!isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
+              {!isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
+              {isBrowse && (
+                <td
+                  style={{
+                    border: "2px solid black",
+                    padding: "10px",
+                    fontWeight: "bolder",
+                  }}
+                >
+                  -
+                </td>
+              )}
             </tr>
           </>
         )}

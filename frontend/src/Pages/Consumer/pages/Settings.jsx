@@ -122,17 +122,6 @@ const Settings = () => {
             <option value="French">French</option>
           </select>
         </div>
-        <div className="form-group">
-          <label>
-            <input
-              type="checkbox"
-              name="notifications"
-              checked={profile.preferences.notifications}
-              onChange={handleInputChange}
-            />
-            Enable Notifications
-          </label>
-        </div>
         <button type="button" onClick={handleSave}>
           Save Settings
         </button>

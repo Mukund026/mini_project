@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Order from "../models/Orders.js";
 import Product from "../models/Products.js"; // ✅ fixed import name
 import { io } from "../index.js";
+import supplyChainContract from "../blockchain/supplyChain.js";
 
 // ✅ CREATE ORDER
 export const createOrder = async (req, res) => {
@@ -11,12 +12,14 @@ export const createOrder = async (req, res) => {
     const { productId, orderedBy, orderedByRole, quantity } = req.body;
 
     // Verify the user from token matches the orderedBy
-    if (req.user.id !== orderedBy) {
+    if (req.user.id?.toString() !== orderedBy?.toString()) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
+
     // Check if an order for this product by this user already exists
     const existingOrder = await Order.findOne({ product: productId, orderedBy });
+
     if (existingOrder) {
       return res.status(400).json({ message: "Order for this product already exists" });
     }
@@ -24,7 +27,20 @@ export const createOrder = async (req, res) => {
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    const totalPrice = quantity * product.price;
+    // IMPORTANT: Avoid any chance of putting Wei/bigint-like values into Order.totalPrice (Number).
+    // Use priceInINR as-is, but if it isn't a finite number, derive totalPrice using priceInWei only for wei field.
+    // (Return 400 if priceInINR is invalid so we don't create inconsistent orders.)
+    console.log("Product priceInINR:", product.priceInINR, "type:", typeof product.priceInINR);
+
+    const priceInINR = Number(product.priceInINR);
+    if (!Number.isFinite(priceInINR)) {
+      return res.status(400).json({ message: "Invalid product.priceInINR (must be a finite number)" });
+    }
+    const totalPrice = quantity * priceInINR;
+
+    // Wei values must be stored as string (not Number)
+    const totalPriceInWei = (BigInt(product.priceInWei) * BigInt(quantity)).toString();
+
 
     const order = await Order.create({
       product: productId,
@@ -34,7 +50,9 @@ export const createOrder = async (req, res) => {
       sellerRole: product.role,
       quantity,
       totalPrice,
+      totalPriceInWei,
     });
+
 
     // Add initial status to history
     order.statusHistory.push({ status: "Pending", timestamp: new Date() });
@@ -83,7 +101,7 @@ export const getOrdersForUser = async (req, res) => {
     }
 
     const orders = await Order.find({ orderedBy: userId, buyerRole: req.user.role })
-      .populate("product", "name category price listedBy")
+      .populate("product", "name category priceInINR priceInWei listedBy")
       .populate("orderedBy", "username role");
 
     res.json(orders);
@@ -136,7 +154,8 @@ export const getOrdersForSeller = async (req, res) => {
           product: {
             _id: '$product._id',
             name: '$product.name',
-            price: '$product.price',
+            priceInINR: '$product.priceInINR',
+            priceInWei: '$product.priceInWei',
             listedBy: '$product.listedBy'
           },
           orderedBy: {
@@ -206,6 +225,21 @@ export const confirmOrder = async (req, res) => {
 
     console.log("Order confirmed:", order._id);
 
+    // Add trace to blockchain for order confirmation
+    try {
+      const productId = order.product._id.toString();
+      await supplyChainContract.methods.addTrace(
+        productId,
+        order.quantity,
+        // Avoid JS Number division overflow; use Wei per-unit string arithmetic on-chain units
+        (BigInt(order.totalPriceInWei) / BigInt(order.quantity)).toString(), // pricePerUnit (wei)
+        "Confirmed", // quality
+        `Order confirmed by ${req.user.username}` // metaUri
+      ).send({ from: req.user.id, gas: 300000 });
+    } catch (blockchainError) {
+      console.error("Blockchain addTrace error:", blockchainError);
+    }
+
     // Emit order confirmation event to the buyer and seller
     io.to(order.orderedBy.toString()).emit('orderConfirmed', {
       message: 'Your order has been confirmed',
@@ -249,6 +283,22 @@ export const shipOrder = async (req, res) => {
     await order.save();
 
     console.log("Order shipped:", order._id);
+
+    // Transfer ownership on blockchain
+    try {
+      const productId = order.product._id.toString();
+      await supplyChainContract.methods.transferOwnership(
+        productId,
+        order.orderedBy.toString(), // newOwner
+        order.quantity,
+        // Avoid JS Number division overflow; use Wei per-unit string arithmetic on-chain units
+        (BigInt(order.totalPriceInWei) / BigInt(order.quantity)).toString(), // pricePerUnit (wei)
+        "Shipped", // quality
+        `Ownership transferred to ${order.orderedBy}` // metaUri
+      ).send({ from: req.user.id, gas: 300000 });
+    } catch (blockchainError) {
+      console.error("Blockchain transferOwnership error:", blockchainError);
+    }
 
     // Emit order shipped event to the buyer and seller
     io.to(order.orderedBy.toString()).emit('orderShipped', {
@@ -361,7 +411,7 @@ export const getOrderById = async (req, res) => {
     const { orderId } = req.params;
 
     const order = await Order.findById(orderId)
-      .populate("product", "name price listedBy")
+      .populate("product", "name priceInINR priceInWei listedBy")
       .populate("orderedBy", "username role");
 
     if (!order) {

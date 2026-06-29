@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { createServer } from "http";
 import { Server } from "socket.io";
 
+import blockchainRoutes from "./routes/blockchainRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -19,6 +20,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/blockchain", blockchainRoutes);
+app.use("/api/blockchain", blockchainRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);

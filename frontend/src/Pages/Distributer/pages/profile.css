@@ -72,7 +72,8 @@ body {
 .location,
 .phone,
 .payment,
-.changepassword {
+.changepassword,
+.distributorId {
   width: 100%;
   max-width: 400px;
   margin-bottom: 15px;
@@ -221,7 +222,7 @@ button:last-of-type:hover {
 }
 #logout {
   width: 90px;
-  height: 20px;
+  height: 40px;
   font-size: 15px;
   font-weight: bolder;
   padding: 15px;

@@ -1,32 +1,38 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import "./Layout.css";
-import React, { useState } from "react";
+import React from "react";
 
 const Layout = ({ children }) => {
-  const [showProfileOptions, setShowProfileOptions] = useState(false);
-
-  const handleProfileClick = () => {
-    setShowProfileOptions(!showProfileOptions);
-  };
-
   return (
     <div className="layout">
       <div className="sidebar">
         <ul>
-          <Link to="/Overview" className="item-link">
-            <li className="item">Overview</li>
-          </Link>
-          <Link to="/Orders" className="item-link">
-            <li className="item">Order</li>
-          </Link>
-          <Link to="/Listings" className="item-link">
-            <li className="item">Listings</li>
-          </Link>
-          <Link to="/Profile" className="item-link">
-            <li className="item">Profile</li>
-          </Link>
+          <li className="item">
+            <NavLink to="/Overview" className="item-link">
+              Overview
+            </NavLink>
+          </li>
+
+          <li className="item">
+            <NavLink to="/Orders" className="item-link">
+              Order
+            </NavLink>
+          </li>
+
+          <li className="item">
+            <NavLink to="/Listings" className="item-link">
+              Listings
+            </NavLink>
+          </li>
+
+          <li className="item">
+            <NavLink to="/Profile" className="item-link">
+              Profile
+            </NavLink>
+          </li>
         </ul>
       </div>
+
       <div className="main-content">{children}</div>
     </div>
   );

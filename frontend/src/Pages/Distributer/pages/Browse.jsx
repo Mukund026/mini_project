@@ -1,4 +1,4 @@
-import ListingT from "../../Farmer/pages/tables/listingsTableDistributer";
+import ListingsTable from "./tables/ListingsTable.jsx";
 import React, { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import "./browse.css";
@@ -77,7 +77,7 @@ const Browse = () => {
           className="searchInput"
         />
       </div>
-      <ListingT
+      <ListingsTable
         listings={filteredAndSortedListings}
         userType="distributer"
         sortBy={sortBy}

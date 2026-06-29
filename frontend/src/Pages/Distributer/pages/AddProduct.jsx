@@ -2,6 +2,8 @@ import { toast } from "react-toastify";
 import "./addProduct.css";
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
+import { getContract, connectWallet } from "../../../blockchain/wallet";
+import { ethers } from "ethers";
 
 const produceOptions = [
   { value: "Rice", label: "Rice" },
@@ -179,6 +181,7 @@ export default function AddProduct() {
   const [images, setImages] = useState([]);
   const [selectedFilesText, setSelectedFilesText] = useState("Choose Files");
   const [description, setDescription] = useState("");
+  const [walletAddress, setWalletAddress] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -191,6 +194,18 @@ export default function AddProduct() {
       window.location.href = "/login";
       return;
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchWalletAddress = async () => {
+      try {
+        const address = await connectWallet();
+        setWalletAddress(address);
+      } catch (error) {
+        console.error("Error connecting wallet:", error);
+      }
+    };
+    fetchWalletAddress();
   }, []);
 
   return (
@@ -563,6 +578,7 @@ export default function AddProduct() {
                   formData.append("description", description);
                   formData.append("listedBy", user.id);
                   formData.append("role", "distributer");
+                  formData.append("walletAddress", walletAddress);
 
                   // Append images as files
                   images.forEach((file, index) => {
@@ -583,6 +599,31 @@ export default function AddProduct() {
 
                   if (!response.ok) {
                     throw new Error("Failed to add product");
+                  }
+
+                  const data = await response.json();
+
+                  // Record product on blockchain
+                  try {
+                    const contract = await getContract();
+                    const productId = ethers.id(
+                      data.product._id + Date.now().toString()
+                    );
+                    const tx = await contract.createProduct(
+                      productId,
+                      selectedProduce.label,
+                      parseInt(quantityValue),
+                      parseFloat(price),
+                      location,
+                      `Product added by distributer: ${user.username}`
+                    );
+                    await tx.wait();
+                    toast.success("Product added successfully on blockchain!");
+                  } catch (blockchainError) {
+                    console.error("Blockchain error:", blockchainError);
+                    toast.warning(
+                      "Product added to database, but blockchain recording failed"
+                    );
                   }
 
                   toast.success("Product Added Successfully");

@@ -10,7 +10,10 @@ const orderSchema = new mongoose.Schema({
   sellerRole: { type: String, enum: ["farmer","distributer","retailer"], required: true },
 
   quantity: { type: Number, required: true },
+  // totalPrice is INR amount (Number). If you compute it using Wei anywhere, it must remain safe.
   totalPrice: { type: Number, required: true },
+  // Store Wei amounts as string to avoid JS Number overflow / BigInt/Number casting issues
+  totalPriceInWei: { type: String, required: true},
 
   status: { type: String, enum: ["Pending","Accepted","Shipped","Delivered"], default: "Pending" },
 

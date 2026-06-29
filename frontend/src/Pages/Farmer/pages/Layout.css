@@ -1,27 +1,49 @@
 .layout {
   display: flex;
+  width: 100%;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .sidebar {
-  color: white;
-  height: auto;
-  width: 20vw;
-  background-color: #6f4646;
+  flex: 0 0 20vw;
+  /* use the given width; allow main-content to take remaining space */
+  height: 100%;
+  border-radius: 7px;
+  overflow: hidden;
 }
+
 
 .main-content {
   flex: 1;
-  padding: 50px;
+  min-width: 0;
+  overflow-x: hidden;
 }
-.item-link {
-  font-size: x-large;
+
+.sidebar ul {
+  padding: 0;
+  margin-top: 10px;
+}
+
+.sidebar .item {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  list-style: none;
+}
+
+.sidebar .item-link {
   color: white;
-  padding-top: calc(100vh / 12);
-  padding-bottom: calc(100vh / 12);
   text-decoration: none;
   display: block;
+  font-size: x-large;
+  padding: 20px;
 }
-.item-link:hover {
+
+.sidebar .item-link:hover {
+  color: yellow;
+}
+
+.sidebar .item-link.active {
   color: greenyellow;
 }
+

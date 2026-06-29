@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   userType: { type: String, required: true, enum: ['farmer', 'distributer', 'retailer', 'consumer'] },
+  walletAddress: { type: String, unique: true },
 });
 
 export default mongoose.model("User", userSchema);

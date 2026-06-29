@@ -134,13 +134,22 @@ const Profile = () => {
               </div>
             )}
           </div>
+          <div className="farmerId">
+            <label htmlFor="farmerId">Farmer ID</label>
+            <input
+              type="text"
+              value={farmerId}
+              readOnly
+              placeholder="Farmer ID"
+            />
+          </div>
           <div className="name">
             <label htmlFor="name">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your name"
+              placeholder="name"
             />
           </div>
           <div className="location">
@@ -149,9 +158,10 @@ const Profile = () => {
               type="text"
               value={location}
               onChange={(e) => setlocation(e.target.value)}
-              placeholder="Enter the location"
+              placeholder="location"
             />
           </div>
+
           <div className="phone">
             <label htmlFor="phone">Phone</label>
             <input
@@ -159,15 +169,6 @@ const Profile = () => {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Enter your phone number"
-            />
-          </div>
-          <div className="farmerId">
-            <label htmlFor="farmerId">Farmer ID</label>
-            <input
-              type="text"
-              value={farmerId}
-              readOnly
-              placeholder="Farmer ID"
             />
           </div>
           <div className="changepassword">
@@ -198,7 +199,7 @@ const Profile = () => {
               border: "none",
               borderRadius: "5px",
               cursor: "pointer",
-              width: "300px"
+              width: "350px"
             }}
           >
             {name || location || phone || preview

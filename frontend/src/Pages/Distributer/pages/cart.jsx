@@ -68,7 +68,7 @@ const Cart = () => {
       setCartItems([]);
 
       toast.success("Orders placed successfully!");
-      navigate("/distributer-myorders");
+      navigate("/distributer-dashboard/myorders");
     } catch (error) {
       console.error("Error placing orders:", error);
       toast.error(`Failed to place orders: ${error.message}`);

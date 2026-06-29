@@ -120,7 +120,7 @@ const form = ({ selectedListing }) => {
       toast.success("Your order has been placed successfully!");
       // Navigate based on user role
       if (user.role === "distributer") {
-        navigate("/distributer-myorders");
+        navigate("/distributer-dashboard/myorders");
       } else if (user.role === "retailer") {
         navigate("/retailer-cart");
       } else {

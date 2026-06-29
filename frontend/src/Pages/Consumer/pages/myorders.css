@@ -2,15 +2,25 @@
   padding: 20px;
 }
 
+.my-orders h1 {
+  color: white;
+}
+
 .orders-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
 }
 
-.orders-table th,
+.orders-table th {
+  color: black;
+  font-weight: bold;
+}
+
 .orders-table td {
   border: 1px solid #ddd;
+  color: white;
+  font-weight: bold;
   padding: 12px;
   text-align: left;
 }
@@ -25,13 +35,13 @@
 }
 
 .orders-table tr:hover {
-  background-color: #f1f1f1;
+  background-color: #8d8d8d3e;
 }
 
 .orders-table button {
   margin-right: 10px;
   padding: 5px 10px;
-  background-color: #4caf50;
+  background-color: #379e3b;
   color: white;
   border: none;
   border-radius: 4px;
@@ -110,7 +120,7 @@
 }
 
 .status-pending {
-  color: #ff9800;
+  color: #ffffff;
 }
 
 .status-accepted {
@@ -118,7 +128,7 @@
 }
 
 .status-shipped {
-  color: #ff5722;
+  color: #ffffff;
 }
 
 .status-delivered {
@@ -126,7 +136,7 @@
 }
 
 .close-modal {
-  background-color: #f44336;
+  background-color: #ffffff;
   color: white;
   border: none;
   padding: 10px 20px;

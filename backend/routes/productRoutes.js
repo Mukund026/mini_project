@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { addProduct, getAllProducts, getProductsByRole, getProductsByUser, traceProduct } from "../controllers/productController.js";
+import { addProduct, getAllProducts, getProductsByRole, getProductsByUser, traceProduct, getWalletAddresses } from "../controllers/productController.js";
 import auth from "../middleware/auth.js";
 
 const router = express.Router();
@@ -27,5 +27,6 @@ router.get("/farmer/:userId", auth, getProductsByUser);
 router.get("/distributer/:userId", auth, getProductsByUser);
 router.get("/retailer/:userId", auth, getProductsByUser);
 router.get("/trace/:productId", auth, traceProduct);
+router.get("/wallet-addresses", getWalletAddresses);
 
 export default router;

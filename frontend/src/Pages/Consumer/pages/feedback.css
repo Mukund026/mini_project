@@ -3,6 +3,9 @@
 }
 
 .feedback-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   max-width: 500px;
   margin: 0 auto;
 }
@@ -12,17 +15,22 @@
 }
 
 .rating-section label {
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items:center;
   margin-bottom: 10px;
   font-weight: bold;
+  letter-spacing: 3px;
 }
 
 .stars {
   display: flex;
-  gap: 5px;
+  gap: 10px;
 }
 
 .star {
+  justify-content: center;
+  align-items:center;
   font-size: 30px;
   color: #ddd;
   cursor: pointer;
@@ -38,13 +46,16 @@
 }
 
 .comments-section label {
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items:center;
   margin-bottom: 10px;
   font-weight: bold;
+  letter-spacing: 3px;
 }
 
 .comments-section textarea {
-  width: 100%;
+  width: 300px;
   height: 100px;
   padding: 10px;
   border: 1px solid #ccc;

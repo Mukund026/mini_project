@@ -4,9 +4,9 @@ import jwt from "jsonwebtoken";
 
 export const signup = async (req, res) => {
   try {
-    const { name, email, password, userType } = req.body;
+    const { name, email, password, userType, walletAddress } = req.body;
 
-    if (!name || !email || !password || !userType) {
+    if (!name || !email || !password || !userType || !walletAddress) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -18,8 +18,11 @@ export const signup = async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: "User already exists" });
 
+    const existingWallet = await User.findOne({ walletAddress });
+    if (existingWallet) return res.status(400).json({ message: "Wallet address already exists" });
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ name, email, password: hashedPassword, userType });
+    const user = new User({ name, email, password: hashedPassword, userType, walletAddress });
     await user.save();
 
     res.status(201).json({ message: "Signup successful" });
@@ -44,7 +47,7 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, role: user.userType },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "7d" }
     );
 
     // 🧩 Generate formatted ID message
@@ -65,6 +68,7 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.userType,
+        walletAddress: user.walletAddress,
       },
     });
   } catch (error) {

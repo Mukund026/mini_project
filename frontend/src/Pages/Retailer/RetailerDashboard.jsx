@@ -1,71 +1,53 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useCallback } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "./sidebar/Sidebar";
-import Dashboard from "./pages/Dashboard";
-import Browse from "./pages/Browse";
-import Myorders from "./pages/Myorders";
-import Payments from "./pages/Payments";
-import PurchaseHistory from "./pages/PurchaseHistory";
-import Inventory from "./pages/Inventory";
-
-import Profile from "./pages/Profile";
-import AddProduct from "./pages/AddProduct";
-import Listings from "./pages/Listings";
-import Cart from "./pages/Cart";
-import ManageOrders from "./pages/ManageOrders";
+import WalletSelector from "../../Components/WalletSelector";
+import { ethers } from "ethers";
 
 const RetailerDashboard = () => {
-  const location = useLocation();
+  const navigate = useNavigate();
+  const [wallet, setWallet] = useState(null);
+  const [account, setAccount] = useState("");
 
   const user = JSON.parse(localStorage.getItem("user"));
+
   if (!user || user.role !== "retailer") {
-    window.location.href = "/login";
+    navigate("/login");
     return null;
   }
 
-  const renderContent = () => {
-    switch (location.pathname) {
-      case "/retailer-dashboard":
-      case "/retailer":
-        return <Dashboard />;
-      case "/retailer-browse":
-        return <Browse />;
-      case "/retailer-orders":
-        return <Myorders />;
-      case "/retailer-payments":
-        return <Payments />;
-      case "/retailer-history":
-        return <PurchaseHistory />;
-      case "/retailer-inventory":
-        return <Inventory />;
-      case "/retailer-profile":
-        return <Profile />;
-      case "/retailer-add-product":
-        return <AddProduct />;
-      case "/retailer-cart":
-        return <Cart />;
-      case "/retailer-listings":
-        return <Listings />;
-      case "/retailer-manage-orders":
-        return <ManageOrders />;
-      default:
-        return <Dashboard />;
-    }
-  };
+  const handleWalletSelect = useCallback((selectedWallet) => {
+    const walletInstance = new ethers.Wallet(selectedWallet.privateKey);
+    setWallet(walletInstance);
+    setAccount(walletInstance.address);
+  }, []);
 
   return (
-    <div style={{ display: "flex" }}>
+    <div
+      style={{
+        display: "flex",
+        height: "100vh",
+        width: "100vw",
+        overflow: "hidden",
+      }}
+    >
       <Sidebar />
+
+      {/* Take the remaining width after the sidebar */}
       <div
         style={{
-          marginLeft: "20px",
+          flex: "1 1 auto",
+          width: "calc(100vw - 20vw)",
           padding: "20px",
-          width: "100%",
-          position: "relative",
-          height: "100vh",
+          minWidth: 0,
+          overflow: "auto",
         }}
       >
-        {renderContent()}
+        <WalletSelector onSelect={handleWalletSelect} />
+        <h3>Active Wallet: {account}</h3>
+
+        {/* Nested routes render here */}
+        <Outlet />
       </div>
     </div>
   );

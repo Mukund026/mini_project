@@ -1,37 +1,40 @@
 .sidebar {
-  width: 250px;
+  width: 20vw;
   height: 100vh;
-  background-color: rgb(112, 69, 69);
-  color: white;
-  padding: 20px;
+  background-color: rgb(70, 45, 45);
+  color: rgb(252, 252, 252);
+  padding: 50px;
   position: fixed;
   left: 0;
   top: 0;
 }
-.LINK {
-  list-style-type: none;
-  padding-top: calc(100vh / 16);
-  padding-bottom: calc(100vh / 16);
-  text-decoration: none;
-  color: rgb(255, 255, 255);
-  display: block;
-}
 
-.sidebar h2 {
-  margin-bottom: 20px;
-  font-size: 24px;
-}
-
+/* remove bullets */
 .sidebar ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .sidebar li {
-  padding: 15px 0;
-  cursor: pointer;
+  padding: 35px 0px;
 }
 
-.sidebar li:hover {
+/* link styling */
+.sidebar .link {
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+  font-size: large;
+  font-weight: bold;
+  display: block;
+}
+
+/* hover */
+.sidebar .link:hover {
   color: greenyellow;
+}
+
+/* active route */
+.sidebar .link.active {
+  color: yellow;
 }

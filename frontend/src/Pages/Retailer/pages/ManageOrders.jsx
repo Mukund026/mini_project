@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { getContract } from "../../../blockchain/wallet";
+import { ethers } from "ethers";
+import { toast } from "react-toastify";
 import "./manageOrders.css";
 
 const ManageOrders = () => {
@@ -39,7 +42,7 @@ const ManageOrders = () => {
   const updateOrderStatus = async (orderId, action) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put(
+      const response = await axios.put(
         `http://localhost:5000/api/orders/${action}/${orderId}`,
         {},
         {
@@ -48,6 +51,40 @@ const ManageOrders = () => {
           },
         }
       );
+
+      // Record order status update on blockchain
+      try {
+        const contract = await getContract();
+        const user = JSON.parse(localStorage.getItem("user"));
+        const orderData = response.data.order;
+
+        if (action === "confirm") {
+          const tx = await contract.confirmOrder(
+            ethers.id(orderId),
+            `Order confirmed by retailer: ${user.username}`
+          );
+          await tx.wait();
+          toast.success("Order confirmed on blockchain!");
+        } else if (action === "ship") {
+          const tx = await contract.shipOrder(
+            ethers.id(orderId),
+            `Order shipped by retailer: ${user.username}`
+          );
+          await tx.wait();
+          toast.success("Order shipped on blockchain!");
+        } else if (action === "deliver") {
+          const tx = await contract.deliverOrder(
+            ethers.id(orderId),
+            `Order delivered by retailer: ${user.username}`
+          );
+          await tx.wait();
+          toast.success("Order delivered on blockchain!");
+        }
+      } catch (blockchainError) {
+        console.error("Blockchain error:", blockchainError);
+        toast.warning("Order updated, but blockchain recording failed");
+      }
+
       fetchOrders(); // Refresh orders
     } catch (err) {
       setError("Failed to update order status");
@@ -89,9 +126,7 @@ const ManageOrders = () => {
                         Confirm
                       </button>
                       <button
-                        onClick={() =>
-                          updateOrderStatus(order._id, "cancel")
-                        }
+                        onClick={() => updateOrderStatus(order._id, "cancel")}
                       >
                         Cancel
                       </button>

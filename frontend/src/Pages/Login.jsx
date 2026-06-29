@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useNavigate, Link } from "react-router-dom";
 import Select from "react-select";
 import React, { useState } from "react";
+import { loadBlockchain } from "../blockchain/wallet";
 import "./login.css";
 
 const Login = () => {
@@ -50,22 +51,39 @@ const Login = () => {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("userId", res.data.user.id);
-      localStorage.setItem("userRole", res.data.user.role);
+      localStorage.setItem("userType", res.data.user.role);
+      localStorage.setItem("walletAddress", res.data.user.walletAddress);
       localStorage.setItem("loginMessage", res.data.message);
       localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      // Load blockchain for farmer, distributer, retailer, and consumer user types
+      if (
+        userType.value === "farmer" ||
+        userType.value === "distributer" ||
+        userType.value === "retailer" ||
+        userType.value === "consumer"
+      ) {
+        console.log(`Loading blockchain for ${userType.value}`);
+        await loadBlockchain(userType.value).catch((error) => {
+          console.error("Failed to load blockchain:", error);
+          toast.error(
+            "Failed to connect to blockchain. Please ensure MetaMask is installed and connected."
+          );
+        });
+      }
 
       switch (userType.value) {
         case "farmer":
           navigate("/Overview");
           break;
         case "distributer":
-          navigate("/distributer");
+          navigate("/distributer-dashboard");
           break;
         case "retailer":
           navigate("/retailer");
           break;
         case "consumer":
-          navigate("/consumere");
+          navigate("/consumer-dashboard");
           break;
         default:
           navigate("/");
@@ -80,109 +98,108 @@ const Login = () => {
   return (
     <div className="login-wrapper">
       {/* <div className="container"> */}
-        <div className="container1">
-          <form onSubmit={handleSubmit}>
-            <h1>Login</h1>
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={formdata.username}
-              onChange={handleChange}
-              required
-              onInvalid={(e) =>
-                e.target.setCustomValidity("Username cannot be empty")
-              }
-              onInput={(e) => e.target.setCustomValidity("")}
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formdata.email}
-              onChange={handleChange}
-              required
-              onInvalid={(e) =>
-                e.target.setCustomValidity("Please enter a valid email")
-              }
-              onInput={(e) => e.target.setCustomValidity("")}
-            />
-            <Select
-              options={userOptions}
-              value={userType}
-              onChange={(selectedOption) => setUserType(selectedOption)}
-              placeholder="Select user type"
-              styles={{
-                control: (provided, state) => ({
-                  ...provided,
-                  width: "100%",
-                  padding: 0,
-                  margin: "5px 10px 5px 10px",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  transition: "all 0.3s ease",
-                  outline: "none",
-                  height: "40px",
-                  background:
-                    "linear-gradient(145deg, #a9c69f 0%, #a8df8e 100%)",
-                  border: "2px solid #6b8e23",
-                  color: "white",
-                  boxShadow: state.isFocused
-                    ? "0 0 0 3px rgba(107, 142, 35, 0.2)"
-                    : "none",
-                  transform: state.isFocused ? "scale(1.02)" : "none",
-                }),
-                singleValue: (provided) => ({
-                  ...provided,
-                  color: "white",
-                }),
-                placeholder: (provided) => ({
-                  ...provided,
-                  color: "rgba(255, 255, 255, 0.8)",
-                  width: "238px",
-                  marginRight: "0px",
-                  padding: "0px 0px 35px 0px",
-                }),
-                dropdownIndicator: (provided) => ({
-                  ...provided,
-                  color: "#333",
-                  padding: "0px 0px 35px 0px",
-                }),
-                input: (provided) => ({
-                  ...provided,
-                  color: "white",
-                  padding: "12px",
-                }),
-                option: (provided, state) => ({
-                  ...provided,
-                  backgroundColor: state.isFocused
-                    ? "rgba(100, 143, 39, 0.7)"
-                    : "white",
-                  color: state.isFocused ? "white" : "black",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                }),
-              }}
-              components={{ IndicatorSeparator: () => null }}
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formdata.password}
-              onChange={handleChange}
-              required
-            />
-            <button type="submit">Login</button>
-            <div className="last">
-              <div className="last1">Don't have an account?</div>
-              <div className="last2" onClick={() => navigate("/signup")}>
-                Signup
-              </div>
+      <div className="container1">
+        <form onSubmit={handleSubmit}>
+          <h1>Login</h1>
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={formdata.username}
+            onChange={handleChange}
+            required
+            onInvalid={(e) =>
+              e.target.setCustomValidity("Username cannot be empty")
+            }
+            onInput={(e) => e.target.setCustomValidity("")}
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formdata.email}
+            onChange={handleChange}
+            required
+            onInvalid={(e) =>
+              e.target.setCustomValidity("Please enter a valid email")
+            }
+            onInput={(e) => e.target.setCustomValidity("")}
+          />
+          <Select
+            options={userOptions}
+            value={userType}
+            onChange={(selectedOption) => setUserType(selectedOption)}
+            placeholder="Select user type"
+            styles={{
+              control: (provided, state) => ({
+                ...provided,
+                width: "100%",
+                padding: 0,
+                margin: "5px 10px 5px 10px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                transition: "all 0.3s ease",
+                outline: "none",
+                height: "40px",
+                background: "linear-gradient(145deg, #a9c69f 0%, #a8df8e 100%)",
+                border: "2px solid #6b8e23",
+                color: "white",
+                boxShadow: state.isFocused
+                  ? "0 0 0 3px rgba(107, 142, 35, 0.2)"
+                  : "none",
+                transform: state.isFocused ? "scale(1.02)" : "none",
+              }),
+              singleValue: (provided) => ({
+                ...provided,
+                color: "white",
+              }),
+              placeholder: (provided) => ({
+                ...provided,
+                color: "rgba(255, 255, 255, 0.8)",
+                width: "238px",
+                marginRight: "0px",
+                padding: "0px 0px 35px 0px",
+              }),
+              dropdownIndicator: (provided) => ({
+                ...provided,
+                color: "#333",
+                padding: "0px 0px 35px 0px",
+              }),
+              input: (provided) => ({
+                ...provided,
+                color: "white",
+                padding: "12px",
+              }),
+              option: (provided, state) => ({
+                ...provided,
+                backgroundColor: state.isFocused
+                  ? "rgba(100, 143, 39, 0.7)"
+                  : "white",
+                color: state.isFocused ? "white" : "black",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }),
+            }}
+            components={{ IndicatorSeparator: () => null }}
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formdata.password}
+            onChange={handleChange}
+            required
+          />
+          <button type="submit">Login</button>
+          <div className="last">
+            <div className="last1">Don't have an account?</div>
+            <div className="last2" onClick={() => navigate("/signup")}>
+              Signup
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
+      </div>
       {/* </div> */}
     </div>
   );

@@ -5,14 +5,24 @@ html, body {
 }
 
 .sidebarContainer {
+  box-sizing: border-box;
   border-radius: 5px;
-  display: none;
+  /* Fixed sidebar width */
+  flex: 0 0 20vw;
   width: 20vw;
+  position: relative;
   height: 100vh;
   background-color: rgb(112, 69, 69);
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Ensure sidebar doesn't participate in shrinking weirdly */
+  max-width: 20vw;
+}
+
+
+.sidebarContainer ul li {
+  margin-top: 10px;
 }
 
 .sidebarList {
@@ -38,12 +48,24 @@ html, body {
   color: rgb(255, 255, 255);
   display: block;
 }
+
 .item-link1:hover {
   color: greenyellow;
 }
+
 ul {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
+
+ul li {
+  color: white;
+}
+
+ul li:hover {
+  cursor: pointer;
+  color: yellow;
+}
+

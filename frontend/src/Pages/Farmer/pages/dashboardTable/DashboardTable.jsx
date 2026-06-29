@@ -35,7 +35,7 @@ const DashboardTable = ({ onShowAddForm, refreshTrigger }) => {
 
         // Fetch products listed by this farmer
         const productsResponse = await fetch(
-          `http://localhost:5000/api/products/user/${user.id}`,
+          `http://localhost:5000/api/products/byuser/${user.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -127,8 +127,10 @@ const DashboardTable = ({ onShowAddForm, refreshTrigger }) => {
         style={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: "flex-start",
           marginBottom: "20px",
+          flexWrap: "wrap",
+          gap: "20px",
         }}
       >
         {/* Add Product Button */}
@@ -142,7 +144,9 @@ const DashboardTable = ({ onShowAddForm, refreshTrigger }) => {
             borderRadius: "5px",
             cursor: "pointer",
             fontSize: "16px",
-            width: "600px",
+            flex: "1",
+            minWidth: "200px",
+            maxWidth: "400px",
           }}
         >
           ➕ Add Product
@@ -159,13 +163,14 @@ const DashboardTable = ({ onShowAddForm, refreshTrigger }) => {
               : "#4CAF50",
             padding: "10px",
             borderRadius: "5px",
-            margin: "20px 0px 0px 0px",
             cursor: "pointer",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
             color: "white",
-            width: "400px",
+            flex: "1",
+            minWidth: "200px",
+            maxWidth: "400px",
           }}
           onClick={handleNotificationClick}
         >

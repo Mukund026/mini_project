@@ -2,8 +2,32 @@
   display: flex;
 }
 
-.main-content {
-  margin-left: 250px;
+.consumer-main {
+  flex: 1;
   padding: 20px;
+  margin-left: 20vw;
+  min-height: 100vh;
   width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
+
+.consumer-main > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Optional overlay to keep content readable */
+.consumer-main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 0;
+}
+
+.consumer-main {
+  position: relative;
+}
+

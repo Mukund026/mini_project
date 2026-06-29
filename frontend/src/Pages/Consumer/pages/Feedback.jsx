@@ -31,7 +31,7 @@ const Feedback = () => {
       <h1>Feedback</h1>
       <form onSubmit={handleSubmit} className="feedback-form">
         <div className="rating-section">
-          <label>Rating:</label>
+          <label>Rating</label>
           <div className="stars">
             {[1, 2, 3, 4, 5].map((star) => (
               <span
@@ -39,13 +39,14 @@ const Feedback = () => {
                 className={star <= rating ? "star selected" : "star"}
                 onClick={() => setRating(star)}
               >
-                ★
+                ⭐
               </span>
             ))}
           </div>
         </div>
+
         <div className="comments-section">
-          <label htmlFor="comments">Comments:</label>
+          <label htmlFor="comments">Comment</label>
           <textarea
             id="comments"
             value={comments}

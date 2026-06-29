@@ -3,6 +3,8 @@ import "./addProduct.css";
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";
+import { getContract } from "../../../blockchain/wallet.js";
+import { ethers } from "ethers";
 
 const produceOptions = [
   { value: "Rice", label: "Rice" },
@@ -587,7 +589,34 @@ export default function AddProductForm() {
                     throw new Error("Failed to add product");
                   }
 
-                  toast.success("Product Added Successfully");
+                  const productData = await response.json();
+
+                  // Generate unique productId for blockchain
+                  const productId = ethers.id(
+                    selectedProduce.label + Date.now().toString()
+                  );
+
+                  // Create product on blockchain
+                  try {
+                    const contract = await getContract();
+                    const tx = await contract.createProduct(
+                      productId,
+                      selectedProduce.label,
+                      category.label,
+                      parseInt(quantityValue),
+                      parseInt(price),
+                      "Good", // quality
+                      description // metaUri
+                    );
+                    await tx.wait();
+                    toast.success("Product Added Successfully to Blockchain");
+                  } catch (blockchainError) {
+                    console.error("Blockchain error:", blockchainError);
+                    toast.warning(
+                      "Product added to database, but blockchain update failed"
+                    );
+                  }
+
                   // Refresh the page to update listings
                   window.location.reload();
                 } catch (error) {

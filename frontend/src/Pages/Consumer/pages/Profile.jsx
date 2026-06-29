@@ -89,7 +89,7 @@ const Profile = () => {
             onClick={() => setShowMenu(!showMenu)}
           >
             <img
-              src={preview || "https://via.placeholder.com/200"}
+              src={preview || "https://picsum.photos/200"}
               alt="Profile"
               className="profileImage"
             />
@@ -134,15 +134,15 @@ const Profile = () => {
             placeholder="Enter your name"
           />
         </div>
-           <div className="consumereId">
-            <label htmlFor="consumereId">Consumere ID</label>
-            <input
-              type="text"
-              value={consumereId}
-              readOnly
-              placeholder="Consumere ID"
-            />
-          </div>
+        <div className="consumereId">
+          <label htmlFor="consumereId">Consumere ID</label>
+          <input
+            type="text"
+            value={consumereId}
+            readOnly
+            placeholder="Consumere ID"
+          />
+        </div>
         <div className="location">
           <label htmlFor="Location">Location</label>
           <input
@@ -193,7 +193,7 @@ const Profile = () => {
             border: "none",
             borderRadius: "5px",
             cursor: "pointer",
-            width: "300px",
+            width: "350px",
           }}
         >
           {name || location || phone || preview

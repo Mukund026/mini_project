@@ -15,6 +15,8 @@ const Signup = () => {
     confirm_password: "",
   });
   const [userType, setUserType] = useState(null);
+  const [walletAddress, setWalletAddress] = useState("");
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const userOptions = [
     { value: "farmer", label: "Farmer" },
@@ -27,13 +29,42 @@ const Signup = () => {
     setFormData({ ...formdata, [e.target.name]: e.target.value });
   };
 
+  const connectWallet = async () => {
+    if (!window.ethereum) {
+      toast.error("MetaMask not installed!", { closeButton: false });
+      return;
+    }
+
+    setIsConnecting(true);
+    try {
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      setWalletAddress(accounts[0]);
+      toast.success("Wallet connected successfully!", { closeButton: false });
+    } catch (error) {
+      toast.error("Failed to connect wallet!", { closeButton: false });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const { username, email, password, confirm_password } = formdata;
 
-    if (!username || !email || !password || !confirm_password || !userType) {
-      toast.error("Please fill all fields!", { closeButton: false });
+    if (
+      !username ||
+      !email ||
+      !password ||
+      !confirm_password ||
+      !userType ||
+      !walletAddress
+    ) {
+      toast.error("Please fill all fields and connect your wallet!", {
+        closeButton: false,
+      });
       return;
     }
 
@@ -48,6 +79,7 @@ const Signup = () => {
         email,
         password,
         userType: userType.value,
+        walletAddress,
       });
       toast.success(res.data.message || "Signup successful!", {
         closeButton: false,
@@ -177,6 +209,14 @@ const Signup = () => {
             onChange={handleChange}
             required
           />
+          <br />
+          <button type="button" onClick={connectWallet} disabled={isConnecting}>
+            {isConnecting
+              ? "Connecting..."
+              : walletAddress
+              ? "Wallet Connected"
+              : "Connect Wallet"}
+          </button>
           <br />
           <button type="submit">Signup</button>
           <div className="last">
